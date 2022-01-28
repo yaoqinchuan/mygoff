@@ -1,0 +1,29 @@
+server:
+  address:     ":8000"
+  openapiPath: "/api.json"
+  swaggerPath: "/swagger"
+
+logger:
+  devLogger:
+    path: "/var/log/dev"
+    file: "{Y-m-d}[dev].log"
+    rotateExpire: 86400000
+    level: "dev"
+    stdout: true
+    stdoutColorDisabled: false
+    writerColorEnable: true
+  prodLogger:
+    path: "/var/log/prod"
+    file: "{Y-m-d}[prod].log"
+    rotateExpire: 86400000
+    level: "prod"
+    stdout: false
+    stdoutColorDisabled: false
+    writerColorEnable: true
+
+gfcli:
+  gen:
+    dao:
+      - link:     "mysql:root:root@tcp(192.168.1.104:3306)/gogf"
+        tables:   "user"
+        jsonCase: "CamelLower"
