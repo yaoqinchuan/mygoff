@@ -1,12 +1,11 @@
 package main
 
 import (
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gctx"
-	"mygogf/internal/cmd"
 	_ "mygogf/internal/packed"
+	"mygogf/internal/utils"
 )
+
 
 func main() {
 
@@ -16,11 +15,8 @@ func main() {
 	//而键值是一个布尔类型，标识该选项是否需要解析参数。这一选项配置是非常重要的，因为有的选项是不需要获得数据的，
 	//仅仅作为一个标识。例如，-f force这个输入，在需要解析数据的情况下，选项f的值为force；而在不需要解析选项数据的情况下，
 	//其中的force便是命令行的一个参数，而不是选项。
-	paras, err := gcmd.Parse(g.MapStrBool{
-		"version, v":true,
-	})
-	if err != nil {
-		g.Log("error occurs")
-	}
-	cmd.Main.Run(gctx.New())
+	appCtx := gctx.New()
+	mainCommand := utils.GetLoggerHandler()
+	mainCommand.Run(appCtx)
+	utils.PrintLog(appCtx, "start application mygogf.")
 }

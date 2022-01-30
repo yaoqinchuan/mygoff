@@ -5,7 +5,7 @@ server:
 
 logger:
   devLogger:
-    path: "/var/log/dev"
+    path: "logs/dev"
     file: "{Y-m-d}[dev].log"
     rotateExpire: 86400000
     level: "dev"
@@ -13,7 +13,7 @@ logger:
     stdoutColorDisabled: false
     writerColorEnable: true
   prodLogger:
-    path: "/var/log/prod"
+    path: "logs/prod"
     file: "{Y-m-d}[prod].log"
     rotateExpire: 86400000
     level: "prod"

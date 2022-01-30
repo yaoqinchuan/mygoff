@@ -7,7 +7,7 @@ import (
 )
 
 type MyLoggerWriter struct {
-	logger *glog.Logger
+	*glog.Logger
 }
 
 func (w *MyLoggerWriter) Write(p []byte) (n int, err error) {
@@ -18,5 +18,5 @@ func (w *MyLoggerWriter) Write(p []byte) (n int, err error) {
 		fmt.Println("SERIOUS ISSUE OCCURRED!! I'd better tell monitor in first time!")
 		return 0, nil
 	}
-	return w.logger.Write(p)
+	return w.Write(p)
 }

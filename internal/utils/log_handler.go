@@ -20,7 +20,7 @@ type JsonOutPutsForLogger struct {
 var loggingJsonHandler glog.Handler = func(ctx context.Context, in *glog.HandlerInput) {
 	jsonForLogger := JsonOutPutsForLogger{
 		in.TimeFormat,
-		gstr.Trim(in.LevelFormat, "[]"),
+		"notice",
 		gstr.Trim(in.Content),
 	}
 	jsonBytes, err := json.Marshal(jsonForLogger)
