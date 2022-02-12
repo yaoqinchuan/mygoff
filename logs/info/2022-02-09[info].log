@@ -1,0 +1,6 @@
+2022-02-09 22:35:48.302 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-09 22:35:48.337 {30a624a6dd24d216ffcd810038c2916c} app using info level mode. 
+2022-02-09 22:35:48.341 {30a624a6dd24d216ffcd810038c2916c} start application mygogf. 
+2022-02-09 22:41:32.097 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-09 22:41:32.105 {e89b53b02d25d216d7513651202bfdfc} app using info level mode. 
+2022-02-09 22:41:32.114 {e89b53b02d25d216d7513651202bfdfc} start application mygogf. 

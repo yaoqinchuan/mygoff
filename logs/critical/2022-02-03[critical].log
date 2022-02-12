@@ -1,0 +1,2 @@
+2022-02-03 23:38:08.917 delete user by id failed, error: delete user by id failed, error: Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'is = ?' at line 1, DELETE FROM `user` WHERE is = 6
+ 

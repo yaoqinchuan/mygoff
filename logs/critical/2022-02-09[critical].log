@@ -1,0 +1,2 @@
+2022-02-09 22:40:27.978 {882615fc1d25d21601ce81001da98f9a} query user by id failed, error: strconv.ParseUint: parsing "-1": invalid syntax 
+2022-02-09 22:40:58.555 {401b98852325d21602ce8100cffa9718} query user by id failed, error: strconv.ParseUint: parsing "-1": invalid syntax 

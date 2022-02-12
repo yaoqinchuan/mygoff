@@ -5,7 +5,12 @@
 package dao
 
 import (
+	"context"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/os/gctx"
+	"mygogf/errors"
 	"mygogf/internal/service/internal/dao/internal"
+	"mygogf/internal/service/internal/do"
 )
 
 // userDao is the data access object for table user.
@@ -16,9 +21,58 @@ type userDao struct {
 
 var (
 	// User is globally public accessible object for table user operations.
-	User = userDao{
+	UserDao = userDao{
 		internal.NewUserDao(),
 	}
+	UserModel = UserDao.Ctx(gctx.New())
 )
 
-// Fill with you ideas below.
+// 使用GDB的流式查询
+func FindUserByIdUsingGDB(ctx context.Context, id uint64) (*do.User, error) {
+	var result = &do.User{}
+	record, err := UserModel.One("id= ?", id)
+	if err != nil {
+		return nil, gerror.NewCode(errors.SQLError, "query user by id failed, error:"+err.Error())
+	}
+	if record.IsEmpty() {
+		return nil, nil
+	}
+	err = record.Struct(result)
+	if err != nil {
+		return nil, gerror.NewCode(errors.StructConvertError, "convert user data to specify struct failed, error:"+err.Error())
+	}
+	return result, nil
+}
+
+func InsertUserUsingGDB(ctx context.Context, user *do.User) error {
+	if user == nil {
+		return gerror.NewCode(errors.WrongParameterError, "insert user is null.")
+	}
+	_, err := UserModel.Insert(user)
+	if err != nil {
+		return gerror.NewCode(errors.SQLError, "insert user failed, error: "+err.Error())
+	}
+	return nil
+}
+
+func UpdateUserUsingGDB(ctx context.Context, user *do.User) error {
+	if user == nil {
+		return gerror.NewCode(errors.WrongParameterError, "update user is null.")
+	}
+	_, err := UserModel.Update(user)
+	if err != nil {
+		return gerror.NewCode(errors.SQLError, "update user failed, error: "+err.Error())
+	}
+	return nil
+}
+
+func DeleteUserByIdUsingGDB(ctx context.Context, id int64) error {
+	if id == 0 {
+		return gerror.NewCode(errors.WrongParameterError, "delete user by id failed, error: id is empty.")
+	}
+	_, err := UserModel.Delete("id = ?", id)
+	if err != nil {
+		return gerror.NewCode(errors.SQLError, "delete user by id failed, error: "+err.Error())
+	}
+	return nil
+}

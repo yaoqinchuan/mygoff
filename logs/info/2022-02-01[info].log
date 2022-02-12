@@ -1,0 +1,23 @@
+2022-02-01 13:05:11.216 G:/go/mygogf/internal/utils/log_utils.go:153: init info logger success. 
+2022-02-01 13:05:11.249 {ec3b2daa1591cf16fd3e0c68e6847643} start application mygogf. 
+2022-02-01 13:13:55.978 G:/go/mygogf/internal/utils/log_utils.go:153: init info logger success. 
+2022-02-01 13:13:55.984 {a01ed6d68f91cf16055de16f6a3dbd2e} start application mygogf. 
+2022-02-01 13:15:33.871 G:/go/mygogf/internal/utils/log_utils.go:153: init info logger success. 
+2022-02-01 13:15:33.881 {7085b8a1a691cf167956f9355398958a} start application mygogf. 
+2022-02-01 13:16:06.844 G:/go/mygogf/internal/utils/log_utils.go:153: init info logger success. 
+2022-02-01 13:16:32.674 G:/go/mygogf/internal/utils/log_utils.go:153: init info logger success. 
+2022-02-01 14:13:24.393 G:/go/mygogf/internal/utils/log_utils.go:153: init info logger success. 
+2022-02-01 14:13:48.459 G:/go/mygogf/internal/utils/log_utils.go:153: init info logger success. 
+2022-02-01 14:13:48.473 {e83ae147d494cf165d3f334c1be92086} start application mygogf. 
+2022-02-01 22:09:10.666 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-01 22:09:10.674 {9c907c1fc5aecf16ada721755b2b537e} app using  level mode. 
+2022-02-01 22:09:10.677 {9c907c1fc5aecf16ada721755b2b537e} start application mygogf. 
+2022-02-01 22:09:59.481 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-01 22:09:59.488 {d007097dd0aecf163e7c6b04291c8b79} app using info level mode. 
+2022-02-01 22:09:59.491 {d007097dd0aecf163e7c6b04291c8b79} start application mygogf. 
+2022-02-01 22:10:45.448 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-01 22:10:45.454 {c48bdc30dbaecf16bc224b674b97ddd0} app using info level mode. 
+2022-02-01 22:10:45.456 {c48bdc30dbaecf16bc224b674b97ddd0} start application mygogf. 
+2022-02-01 22:41:00.147 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-01 22:41:00.153 {cc7a54b581b0cf168354890067c97f04} app using info level mode. 
+2022-02-01 22:41:00.156 {cc7a54b581b0cf168354890067c97f04} start application mygogf. 

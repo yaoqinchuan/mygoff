@@ -1,22 +1,49 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
+	"mygogf/apiv1"
+	"mygogf/errors"
+	"mygogf/internal/cmd"
+	"mygogf/internal/controller"
 	_ "mygogf/internal/packed"
+	"mygogf/internal/service/middleware"
 	"mygogf/internal/utils"
 )
 
+// 从环境变量获取配置
+func printEnv() error {
+	v, err := g.Cfg().GetWithEnv(gctx.New(), "GOPATH")
+	if err != nil || v == nil {
+		return gerror.NewCode(errors.NotConfigured, "env GOPATH is not configured")
+	}
+	fmt.Printf("env GOPATH:%s\n", v)
+	return nil
+}
+
+func initServer(ctx context.Context) {
+	s := g.Server()
+	s.BindMiddlewareDefault(middleware.ResponseHandler)
+	apiv1.RegisterHelloController(ctx, s)
+	apiv1.RegisterTotalController(ctx, s)
+	apiv1.RegisterReflectController(ctx, s)
+	controller.RegisterUserController(ctx, s)
+	s.Run()
+}
 
 func main() {
-
-	// 选项输入参数其实是一个map类型。其中键值为选项名称，
-	//同一个选项的不同名称可以通过,符号进行分隔。比如，该示例中n和name选项是同一个选项，
-	//当用户输入-n john的时候，n和name选项都会获得到数据john。
-	//而键值是一个布尔类型，标识该选项是否需要解析参数。这一选项配置是非常重要的，因为有的选项是不需要获得数据的，
-	//仅仅作为一个标识。例如，-f force这个输入，在需要解析数据的情况下，选项f的值为force；而在不需要解析选项数据的情况下，
-	//其中的force便是命令行的一个参数，而不是选项。
 	appCtx := gctx.New()
-	mainCommand := utils.GetLoggerHandler()
-	mainCommand.Run(appCtx)
-	utils.PrintLog(appCtx, "start application mygogf.")
+	err := printEnv()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	cmd.MainCommand.Run(appCtx)
+	utils.PrintLog(appCtx, utils.INFO, "app using "+cmd.LoggerMode+" level mode.")
+	utils.PrintLog(appCtx, utils.INFO, "start application mygogf.")
+	initServer(appCtx)
 }
