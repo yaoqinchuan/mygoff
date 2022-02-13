@@ -1,0 +1,506 @@
+# 数据校验常见方式
+
+## 1、校验对象
+
+数据校验组件提供了数据校验对象，用于数据校验的统一的配置管理、便捷的链式操作。
+
+```go
+func New() *Validator
+func (v *Validator) Bail() *Validator
+func (v *Validator) CaseInsensitive() *Validator     
+func (v *Validator) Run(ctx context.Context) Error     
+func (v *Validator) Clone() *Validator
+func (v *Validator) Data(data interface{}) *Validator
+func (v *Validator) I18n(i18nManager *gi18n.Manager) *Validator
+func (v *Validator) Messages(messages interface{}) *Validator
+func (v *Validator) RuleFunc(rule string, f RuleFunc) *Validator
+func (v *Validator) RuleFuncMap(m map[string]RuleFunc) *Validator
+func (v *Validator) Rules(rules interface{}) *Validator
+```
+
+**简要说明：**
+
+1. New方法用于创建一个新的校验对象。
+2. Bail方法用于设定只要后续的多个校验中有一个规则校验失败则停止校验立即返回错误结果。
+3. CaseInsensitive方法用于设置需要比较数值的规则时，不区分字段的大小写。
+4. Run方法对给定规则和信息的数据进行校验操作。
+5. I18n方法用于设置当前校验对象的I18N国际化组件。默认情况下，校验组件使用的是框架全局默认的i18n组件对象。
+6. Data方法用于传递需要联合校验的数据集合，往往传递的是map类型或者struct类型。
+7. Rules方法用于传递当前链式操作校验的自定义校验规则，往往使用[]string类型或者map类型。
+8. Messages方法用于传递当前链式操作校验的自定义错误提示信息，往往使用map类型传递，具体看后续代码示例。
+
+### 1.1、单数据校验
+
+```go
+var (
+	err error
+	ctx = gctx.New()
+)
+err = g.Validator().
+	Rules("min:18").
+	Data(16).
+	Messages("未成年人不允许注册哟").
+	Run(ctx)
+fmt.Println(err.Error())
+
+// Output:
+// 未成年人不允许注册哟
+```
+
+```go
+var (
+	err  error
+	ctx  = gctx.New()
+	data = g.Map{
+		"password": "123",
+	}
+)
+
+err = g.Validator().Data("").Assoc(data).
+	Rules("required-with:password").
+	Messages("请输入确认密码").
+	Run(ctx)
+
+fmt.Println(err.Error())
+```
+
+​		多个规则以及多个自定义错误提示之间使用英文 | 号进行分割，注意自定义错误提示的顺序和多规则的顺序一一对应。messages参数除了支持string类型以外，还支持map[string]string类型。
+
+```
+package main
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+)
+
+func main() {
+	var (
+		ctx      = gctx.New()
+		rule     = "integer|between:6,16"
+		messages = "请输入一个整数|参数大小不对啊老铁"
+		value    = 5.66
+	)
+
+	if err := g.Validator().Rules(rule).Messages(messages).Data(value).Run(ctx); err != nil {
+		g.Dump(err.Map())
+	}
+
+}
+```
+
+
+
+### 1.2、Struct数据校验
+
+​		为了避免结构体默认值带来的困惑，从goframe v2.0版本开始，我们增加了一个Assoc方法，用于结构体校验时严格按照给定的参数而不是按照结构体的属性值，而校验规则同样会自动读取结构体中的gvalid tag。
+
+```go
+type User struct {
+	Name string `v:"required#请输入用户姓名"`
+	Type int    `v:"required#请选择用户类型"`
+}
+var (
+	err  error
+	ctx  = gctx.New()
+	user = User{}
+	data = g.Map{
+		"name": "john",
+	}
+)
+if err = gconv.Scan(data, &user); err != nil {
+	panic(err)
+}
+err = g.Validator().Assoc(data).Data(user).Run(ctx)
+if err != nil {
+	fmt.Println(err.(gvalid.Error).Items())
+}
+
+// Output:
+// [map[Type:map[required:请选择用户类型]]]
+```
+
+### 1.3、Map数据校验
+
+使用规则，信息，参数分离的链式操作
+
+```go
+params := map[string]interface{}{
+	"passport":  "",
+	"password":  "123456",
+	"password2": "1234567",
+}
+rules := map[string]string{
+	"passport":  "required|length:6,16",
+	"password":  "required|length:6,16|same:password2",
+	"password2": "required|length:6,16",
+}
+messages := map[string]interface{}{
+	"passport": "账号不能为空|账号长度应当在:min到:max之间",
+	"password": map[string]string{
+		"required": "密码不能为空",
+		"same":     "两次密码输入不相等",
+	},
+}
+err := g.Validator().Messages(messages).Rules(rules).Data(params).Run(gctx.New())
+if err != nil {
+	g.Dump(err.Maps())
+}
+```
+
+​		错误返回的结果是没有排序的，而且字段及规则输出的先后顺序完全是随机的。即使我们使用FirstItem, FirstString()等其他方法获取校验结果也是一样，返回的校验结果不固定。那是因为校验的规则我们传递的是map类型，而golang的map类型并不具有有序性，因此校验的结果和规则一样是随机的，同一个校验结果的同一个校验方法多次获取结果值返回的可能也不一样了。
+
+​		我们来改进一下以上的示例：校验结果中如果不满足required那么返回对应的错误信息，否则才是后续的校验错误信息；也就是说，返回的错误信息应当和我设定规则时的顺序一致。如下：
+
+### 1.4、String数组数据校验
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+)
+
+func main() {
+	var (
+		ctx    = gctx.New()
+		params = map[string]interface{}{
+			"passport":  "",
+			"password":  "123456",
+			"password2": "1234567",
+		}
+		rules = []string{
+			"passport@required|length:6,16#账号不能为空|账号长度应当在{min}到{max}之间",
+			"password@required|length:6,16|same:password2#密码不能为空|密码长度应当在{min}到{max}之间|两次密码输入不相等",
+			"password2@required|length:6,16#",
+		}
+	)  
+	err := g.Validator().Rules(rules).Data(params).Run(ctx)  
+	if err != nil {
+		fmt.Println(err.Map())
+		fmt.Println(err.FirstItem())
+		fmt.Println(err.FirstError())
+	}
+}
+```
+
+执行后，终端输出：
+
+```
+map[length:账号长度应当在6到16之间 required:账号不能为空]
+passport map[length:账号长度应当在6到16之间 required:账号不能为空]
+账号不能为空
+```
+
+
+​		可以看到，我们想要校验结果满足顺序性，**<u>只需要将rules参数的类型修改为[]string</u>**，按照一定的规则设定即可，并且msgs参数既可以定义到rules参数中，也可以分开传入（使用第三个参数）。rules的这种满足顺序性校验结果返回的规则，我们称之为gvalid tag，与前面Struct校验章节介绍的gvalid tag一致。
+
+## 2、校验结果
+
+​		校验结果为一个error错误对象，内部使用gvalid.Error对象实现。当数据规则校验成功时，校验方法返回的结果为nil。当数据规则校验失败时，**<u>返回的该对象是包含结构化的层级map</u>**，包含多个字段及其规则及对应错误信息，以便于接收端能够准确定位错误规则
+
+```
+type Error interface {
+	Code() gcode.Code
+	Current() error
+	Error() string
+	FirstItem() (key string, messages map[string]error)
+	FirstRule() (rule string, err error)
+	FirstError() (err error)
+	Items() (items []map[string]map[string]error)
+	Map() map[string]error
+	Maps() map[string]map[string]error
+	String() string
+	Strings() (errs []string)
+}
+```
+
+​		gvalid.Error实现了Current() error接口，因此可以通过gerror.Current方法获取它的第一条错误信息，这在接口校验失败时返回错误信息非常方便
+
+```go
+package main
+
+import (
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/util/gvalid"
+)
+
+func main() {
+	type User struct {
+		Name string `v:"required#请输入用户姓名"`
+		Type int    `v:"required|min:1#|请选择用户类型"`
+	}
+	var (
+		err  error
+		ctx  = gctx.New()
+		user = User{}
+	)
+	if err = g.Validator().Data(user).Run(ctx); err != nil {
+		g.Dump(err.(gvalid.Error).Maps())
+		g.Dump(gerror.Current(err))
+	}
+}
+```
+
+## 3、自定义校验规则
+
+自定义规则方法定义，以及对应的输入参数数据结构。
+
+```go
+// RuleFuncInput holds the input parameters that passed to custom rule function RuleFunc.
+type RuleFuncInput struct {
+	// Rule specifies the validation rule string, like "required", "between:1,100", etc.
+	Rule string
+
+	// Message specifies the custom error message or configured i18n message for this rule.
+	Message string
+	
+	// Value specifies the value for this rule to validate.
+	Value *gvar.Var
+	
+	// Data specifies the `data` which is passed to the Validator. It might be a type of map/struct or a nil value.
+	// You can ignore the parameter `Data` if you do not really need it in your custom validation rule.
+	Data *gvar.Var
+
+}
+
+// RuleFunc is the custom function for data validation.
+type RuleFunc func(ctx context.Context, in RuleFuncInput) error
+```
+
+方法参数简要说明：
+
+- 上下文参数ctx是必须的。
+- RuleFuncInput数据结构说明：
+  - Rule表示当前的校验规则，包含规则的参数，例如：required,  between:1,100,  length:6等
+  - Message参数表示在校验失败后返回的校验错误提示信息。
+  - Value参数表示被校验的数据值，注意类型是一个*gvar.Var泛型，因此您可以传递任意类型的参数。
+  - Data参数表示校验时传递的参数，例如校验的是一个map或者struct时，往往在联合校验时有用。需要注意的是，这个值是运行时输入的，值可能是nil。
+
+### 3.1、全局校验规则注册
+
+​		自定义规则分为两种：全局规则注册和局部规则注册。
+
+#### 3.1.1、全局规则注册
+
+​		全局规则是全局生效的规则，注册之后无论是使用方法还是对象来执行数据校验都可以使用自定义的规则。
+
+注册校验方法：
+
+```go
+// RegisterRule registers custom validation rule and function for package.
+func RegisterRule(rule string, f RuleFunc) {
+	customRuleFuncMap[rule] = f
+}
+
+// RegisterRuleByMap registers custom validation rules using map for package.
+func RegisterRuleByMap(m map[string]RuleFunc) {
+	for k, v := range m {
+		customRuleFuncMap[k] = v
+	}
+}
+```
+
+​		需要按照RuleFunc类型的方法定义，实现一个您需要的校验方法，随后使用RegisterRule注册到gvalid模块中全局管理。该注册逻辑往往是在程序初始化时执行。该方法在对数据进行校验时将会被自动调用，方法返回nil表示校验通过，否则应当返回一个非空的error类型值。
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/util/gvalid"
+	"time"
+)
+
+type User struct {
+	Id   int
+	Name string `v:"required|unique-name#请输入用户名称|用户名称已被占用"`
+	Pass string `v:"required|length:6,18"`
+}
+
+func init() {
+	rule := "unique-name"
+	gvalid.RegisterRule(rule, RuleUniqueName)
+}
+
+func RuleUniqueName(ctx context.Context, in gvalid.RuleFuncInput) error {
+	var user *User
+	if err := in.Data.Scan(&user); err != nil {
+		return gerror.Wrap(err, `Scan data to user failed`)
+	}
+	// SELECT COUNT(*) FROM `user` WHERE `id` != xxx AND `name` != xxx
+	count, err := g.Model("user").
+		Ctx(ctx).
+		Cache(gdb.CacheOption{
+			Duration: time.Hour,
+			Name:     "",
+			Force:    false,
+		}).
+		WhereNot("id", user.Id).
+		WhereNot("name", user.Name).
+		Count()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		if in.Message != "" {
+			return gerror.New(in.Message)
+		}
+		return gerror.Newf(`user name "%s" is already token by others`, user.Name)
+	}
+	return nil
+}
+
+func main() {
+	var (
+		ctx  = gctx.New()
+		user = &User{
+			Id:   1,
+			Name: "john",
+			Pass: "123456",
+		}
+	)
+	err := g.Validator().CheckStruct(ctx, user)
+	fmt.Println(err)
+}
+```
+
+#### 3.1.2、局部校验规则注册
+
+局部规则是仅在当前校验对象下生效规则，**<u>校验规则是注册到当前使用的链式操作流程中而不是全局中</u>**。
+
+```go
+// RuleFunc registers one custom rule function to current Validator.
+func (v *Validator) RuleFunc(rule string, f RuleFunc) *Validator
+
+// RuleFuncMap registers multiple custom rule functions to current Validator.
+func (v *Validator) RuleFuncMap(m map[string]RuleFunc) *Validator
+```
+
+简要介绍：
+
+- RuleFunc方法用于注册单个自定义校验规则到当前对象。
+- RuleFuncMap方法用于注册多个自定义校验规则到当前对象。
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/util/gvalid"
+	"time"
+)
+
+type Request struct {
+	OrderId     int64
+	ProductName string
+	Amount      int64
+	// ...
+}
+
+func RuleOrderExist(ctx context.Context, in gvalid.RuleFuncInput) error {
+	// SELECT COUNT(*) FROM `order` WHERE `id` = xxx
+	count, err := g.Model("order").
+		Ctx(ctx).
+		Cache(gdb.CacheOption{
+			Duration: time.Hour,
+			Name:     "",
+			Force:    false,
+		}).
+		WhereNot("id", in.Value.Int64()).
+		Count()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return gerror.Newf(`invalid order id "%d"`, in.Value.Int64())
+	}
+	return nil
+}
+
+func main() {
+	var (
+		ctx = gctx.New()
+		req = &Request{
+			OrderId:     65535,
+			ProductName: "HikingShoe",
+			Amount:      10000,
+		}
+	)
+	err := g.Validator().RuleFunc("order-exist", RuleOrderExist).Data(req).Run(ctx)  
+	fmt.Println(err)
+}
+```
+
+### 3.2、完整性校验
+
+​		大家也许已经注意到，当我们给定一个struct时，我们的规则只能对其中的键值或者属性进行校验，如果我们想要通过规则完整校验struct这个对象时，居然无法注册校验组件的自定义校验规则。当然，我们的校验组件也支持直接校验当前的struct对象。我们来看一个例子，在这个例子中，我们需要对创建的用户请求进行完整的自定义校验，并注册一个UserCreateReq的校验规则来实现。
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/util/gvalid"
+	"time"
+)
+
+type UserCreateReq struct {
+	g.Meta `v:"UserCreateReq"`
+	Name   string
+	Pass   string
+}
+
+func RuleUserCreateReq(ctx context.Context, in gvalid.RuleFuncInput) error {
+	var req *UserCreateReq
+	if err := in.Data.Scan(&req); err != nil {
+		return gerror.Wrap(err, `Scan data to UserCreateReq failed`)
+	}
+	// SELECT COUNT(*) FROM `user` WHERE `name` = xxx
+	count, err := g.Model("user").Ctx(ctx).Cache(gdb.CacheOption{
+		Duration: time.Hour,
+		Name:     "",
+		Force:    false,
+	}).Where("name", req.Name).Count()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return gerror.Newf(`The name "%s" is already token by others`, req.Name)
+	}
+	return nil
+}
+
+func main() {
+	var (
+		ctx  = gctx.New()
+		user = &UserCreateReq{
+			Name: "john",
+			Pass: "123456",
+		}
+	)  
+	err := g.Validator().RuleFunc("UserCreateReq", RuleUserCreateReq).Data(user).Run(ctx)  
+	fmt.Println(err)
+}
+```
+
+​		可以看到，**<u>我们通过给结构体一个g.Meta嵌入的元数据，并绑定UserCreateReq的自定义规则</u>**，g.Meta作为结构体的一部分，当我们通过CheckStruct校验该结构体对象时，便可以通过UserCreateReq来实现校验。

@@ -5,15 +5,37 @@
 package entity
 
 import (
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/util/gvalid"
 )
 
 // User is the golang structure for table user.
 type User struct {
-	Id       uint64      `json:"id" p:"id"       `                                                  // User ID
-	Passport string      `json:"passport" p:"passport" v:"required|length:6,15#请输入账户|账户长度最小为6,最大为15"` // User Passport
-	Password string      `json:"password" p:"password" v:"required|length:10,10#请输入密码|账户长度为10"`          // User Password
-	Nickname string      `json:"nickname" p:"nickname" v:"required"`                                       // User Nickname
-	CreateAt *gtime.Time `json:"create_at" p:"create_at" `                                                   // Created Time
-	UpdateAt *gtime.Time `json:"update_at" p:"update_at" `                                                   // Updated Time
+	Id       uint64      `json:"id" p:"id"       `         // User ID
+	Passport string      `json:"passport" p:"passport" `   // User Passport
+	Password string      `json:"password" p:"password"`    // User Password
+	Nickname string      `json:"nickname" p:"nickname"`    // User Nickname
+	CreateAt *gtime.Time `json:"create_at" p:"create_at" ` // Created Time
+	UpdateAt *gtime.Time `json:"update_at" p:"update_at" ` // Updated Time
+}
+// 添加数据校验，同样的也可以在struct定义v的tag
+func UserValidator() *gvalid.Validator {
+	rules := map[string]string{
+		"passport": "required|length:6,15",
+		"password": "required|length:10,20",
+		"nickname": "required|length:1,15",
+	}
+	messages := map[string]interface{}{
+		"passport": "账号不能为空|账号长度应当在6到15之间",
+		"password": map[string]string{
+			"required": "密码不能为空",
+			"length":   "账号长度必须在10到20之间",
+		},
+		"nickname": map[string]string{
+			"required": "密码不能为空",
+			"length":   "账号长度必须在1到15之间",
+		},
+	}
+	return g.Validator().Messages(messages).Rules(rules)
 }

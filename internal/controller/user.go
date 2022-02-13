@@ -45,6 +45,11 @@ func (user *UserController) Post(request *ghttp.Request) {
 		request.Response.Write(gerror.NewCode(errors.DataTypeConvertError, "insert or update user failed, error: "+err.Error()))
 		return
 	}
+	err = entity.UserValidator().Data(input).Run(ctx)
+	if err != nil {
+		request.Response.WriteStatus(http.StatusOK, errors.WrongParameterError.SetErrorContent(err.Error()))
+		return
+	}
 	if input.Id == 0 {
 		err = manager.InsertUserUsingGDB(ctx, &input)
 	}
