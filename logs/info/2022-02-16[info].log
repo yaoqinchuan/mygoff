@@ -1,0 +1,87 @@
+2022-02-16 20:23:40.587 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 20:23:40.709 {700a6dcdb743d416ff380d57687d631d} app using info level mode. 
+2022-02-16 20:23:40.713 {700a6dcdb743d416ff380d57687d631d} start application mygogf. 
+2022-02-16 20:29:55.351 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 20:29:55.472 {b47ade0e0f44d416f75ad67572ec4b71} app using info level mode. 
+2022-02-16 20:29:55.477 {b47ade0e0f44d416f75ad67572ec4b71} start application mygogf. 
+2022-02-16 20:43:08.592 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 20:43:08.698 {e4a0c3bfc744d416a054cd182786392b} app using info level mode. 
+2022-02-16 20:43:08.702 {e4a0c3bfc744d416a054cd182786392b} start application mygogf. 
+2022-02-16 20:51:20.211 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 20:51:20.315 {a8a773363a45d41605bb13120f961854} app using info level mode. 
+2022-02-16 20:51:20.318 {a8a773363a45d41605bb13120f961854} start application mygogf. 
+2022-02-16 20:59:46.641 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 20:59:46.742 {7810f41fb045d4160216e76d0bb10f17} app using info level mode. 
+2022-02-16 20:59:46.748 {7810f41fb045d4160216e76d0bb10f17} start application mygogf. 
+2022-02-16 21:00:20.399 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:00:20.495 {500e17fcb745d41601082f609d0d792d} app using info level mode. 
+2022-02-16 21:00:20.499 {500e17fcb745d41601082f609d0d792d} start application mygogf. 
+2022-02-16 21:00:53.299 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:00:53.403 {b0e128a5bf45d41676748a0d8a46819c} app using info level mode. 
+2022-02-16 21:00:53.409 {b0e128a5bf45d41676748a0d8a46819c} start application mygogf. 
+2022-02-16 21:02:33.355 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:02:33.477 {e4cbf2f0d645d41636a1956b57e5595a} app using info level mode. 
+2022-02-16 21:02:33.486 {e4cbf2f0d645d41636a1956b57e5595a} start application mygogf. 
+2022-02-16 21:04:41.573 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:04:41.731 {809062cbf445d416db548d72cbcd52dd} app using info level mode. 
+2022-02-16 21:04:41.735 {809062cbf445d416db548d72cbcd52dd} start application mygogf. 
+2022-02-16 21:06:35.368 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:06:35.508 {e463144a0f46d416bbd1a934148a0b3f} app using info level mode. 
+2022-02-16 21:06:35.525 {e463144a0f46d416bbd1a934148a0b3f} start application mygogf. 
+2022-02-16 21:07:32.828 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:07:32.939 {a46dd7aa1c46d41638ee5c0454172cc3} app using info level mode. 
+2022-02-16 21:07:32.943 {a46dd7aa1c46d41638ee5c0454172cc3} start application mygogf. 
+2022-02-16 21:10:53.270 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:10:53.385 {90d161564b46d4165c765c2772875642} app using info level mode. 
+2022-02-16 21:10:53.389 {90d161564b46d4165c765c2772875642} start application mygogf. 
+2022-02-16 21:11:40.693 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:11:40.836 {50a5d6605646d416ed2a94718a46ba9d} app using info level mode. 
+2022-02-16 21:11:40.839 {50a5d6605646d416ed2a94718a46ba9d} start application mygogf. 
+2022-02-16 21:12:26.749 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:12:26.850 {50fd0f1a6146d4164229637f6337d992} app using info level mode. 
+2022-02-16 21:12:26.856 {50fd0f1a6146d4164229637f6337d992} start application mygogf. 
+2022-02-16 21:14:10.179 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:14:10.285 {4c0af82e7946d416d78f361f7d14811a} app using info level mode. 
+2022-02-16 21:14:10.291 {4c0af82e7946d416d78f361f7d14811a} start application mygogf. 
+2022-02-16 21:18:59.897 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:19:00.007 {34c984a3bc46d416bace457daa485433} app using info level mode. 
+2022-02-16 21:19:00.018 {34c984a3bc46d416bace457daa485433} start application mygogf. 
+2022-02-16 21:30:31.737 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:30:31.851 {b4d15eb85d47d4165f2cba08f0d40754} app using info level mode. 
+2022-02-16 21:30:31.855 {b4d15eb85d47d4165f2cba08f0d40754} start application mygogf. 
+2022-02-16 21:31:40.420 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:31:40.524 {100715b66d47d4163f63fd69610764b2} app using info level mode. 
+2022-02-16 21:31:40.528 {100715b66d47d4163f63fd69610764b2} start application mygogf. 
+2022-02-16 21:39:37.235 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:39:37.346 {f02ca5badc47d41638923870c96ff5ae} app using info level mode. 
+2022-02-16 21:39:37.351 {f02ca5badc47d41638923870c96ff5ae} start application mygogf. 
+2022-02-16 21:39:41.858 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:39:41.958 {00cbf1cddd47d416e13dd244b41cfeee} app using info level mode. 
+2022-02-16 21:39:41.962 {00cbf1cddd47d416e13dd244b41cfeee} start application mygogf. 
+2022-02-16 21:40:45.652 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:40:45.770 {10bf90a8ec47d41689236a0083d57b78} app using info level mode. 
+2022-02-16 21:40:45.775 {10bf90a8ec47d41689236a0083d57b78} start application mygogf. 
+2022-02-16 21:42:05.663 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:42:05.760 {14107449ff47d41675cc833021eb7d09} app using info level mode. 
+2022-02-16 21:42:05.764 {14107449ff47d41675cc833021eb7d09} start application mygogf. 
+2022-02-16 21:43:16.994 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:43:17.100 {cc7937e50f48d41624f4af6fa8c34e19} app using info level mode. 
+2022-02-16 21:43:17.105 {cc7937e50f48d41624f4af6fa8c34e19} start application mygogf. 
+2022-02-16 21:43:28.945 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 21:43:29.042 {cc5a6dad1248d41688e137319fb69d67} app using info level mode. 
+2022-02-16 21:43:29.046 {cc5a6dad1248d41688e137319fb69d67} start application mygogf. 
+2022-02-16 22:17:37.483 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 22:17:37.579 {1895d5a3ef49d416e8645912357cf1e0} app using info level mode. 
+2022-02-16 22:17:37.583 {1895d5a3ef49d416e8645912357cf1e0} start application mygogf. 
+2022-02-16 22:30:34.611 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 22:30:34.707 {003d4594a44ad416a1b25e181e733bb4} app using info level mode. 
+2022-02-16 22:30:34.715 {003d4594a44ad416a1b25e181e733bb4} start application mygogf. 
+2022-02-16 23:00:16.903 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 23:00:16.950 {207b018e434cd416b4545120707679f1} app using info level mode. 
+2022-02-16 23:00:16.955 {207b018e434cd416b4545120707679f1} start application mygogf. 
+2022-02-16 23:12:55.154 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 23:12:55.170 {20936c18f44cd416e882ba690d7c1897} app using info level mode. 
+2022-02-16 23:12:55.175 {20936c18f44cd416e882ba690d7c1897} start application mygogf. 
+2022-02-16 23:13:29.602 G:/go/mygogf/internal/utils/log_utils.go:170: init info logger success. 
+2022-02-16 23:13:29.618 {9c429d1dfc4cd416cba6252e60758c5f} app using info level mode. 
+2022-02-16 23:13:29.622 {9c429d1dfc4cd416cba6252e60758c5f} start application mygogf. 

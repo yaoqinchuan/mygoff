@@ -5,20 +5,26 @@
 package entity
 
 import (
+	"context"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gvalid"
 )
 
+var rules = "NicknameUnique"
+
 // User is the golang structure for table user.
 type User struct {
-	Id       uint64      `json:"id" p:"id"       `         // User ID
-	Passport string      `json:"passport" p:"passport" `   // User Passport
-	Password string      `json:"password" p:"password"`    // User Password
-	Nickname string      `json:"nickname" p:"nickname"`    // User Nickname
+	g.Meta               //可以使用元数据类型来触发完整性校验
+	Id       uint64      `json:"id" p:"id"       ` // User ID
+	Passport string      `json:"passport" p:"passport" ` // User Passport
+	Password string      `json:"password" p:"password"` // User Password
+	Nickname string      `json:"nickname" p:"nickname"` // User Nickname
 	CreateAt *gtime.Time `json:"create_at" p:"create_at" ` // Created Time
 	UpdateAt *gtime.Time `json:"update_at" p:"update_at" ` // Updated Time
 }
+
 // 添加数据校验，同样的也可以在struct定义v的tag
 func UserValidator() *gvalid.Validator {
 	rules := map[string]string{
@@ -38,4 +44,32 @@ func UserValidator() *gvalid.Validator {
 		},
 	}
 	return g.Validator().Messages(messages).Rules(rules)
+}
+
+func RegisterUserCosmicValidator() {
+	gvalid.RegisterRule(rules, UserInsertRule)
+}
+
+func UserCosmicValidator() *gvalid.Validator {
+	return g.Validator().Rules(rules).RuleFunc(rules, UserInsertRule)
+}
+
+var forbiddenNickNames = []string{
+	"yaoqinchuan",
+	"yqc",
+	"YQC",
+}
+
+// 添加自定义规则,nickname不能是特定字段
+func UserInsertRule(ctx context.Context, input gvalid.RuleFuncInput) error {
+	var user *User
+	if err := input.Value.Scan(&user); err != nil {
+		return gerror.Wrap(err, `Scan data to UserInsertRule failed`)
+	}
+	for _, forbiddenNickName := range forbiddenNickNames {
+		if forbiddenNickName == user.Nickname {
+			return gerror.Newf(`the name %s is not allow to insert.`, forbiddenNickName)
+		}
+	}
+	return nil
 }

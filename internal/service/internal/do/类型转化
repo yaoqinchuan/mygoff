@@ -1,0 +1,673 @@
+# 类型转换
+
+主要有以下几种方式
+
+1. Map转换
+2. Struct转换
+3. Structs转换
+4. Scan转换
+5. UnmarshalValue
+
+## 1、Map转换
+
+​		gconv.Map支持将任意的map或struct/*struct类型转换为常用的 map[string]interface{} 类型。当转换参数为struct/*struct类型时，支持自动识别struct的 c/gconv/json 标签，并且可以通过Map方法的第二个参数tags指定自定义的转换标签，以及多个标签解析的优先级。如果转换失败，返回nil。
+
+​		常用转换方法：
+
+```go
+func Map(value interface{}, tags ...string) map[string]interface{}
+func MapDeep(value interface{}, tags ...string) map[string]interface{}
+```
+
+其中，MapDeep支持递归转换，即会递归转换属性中的struct/*struct对象。
+
+```go
+package main
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+)
+
+func main() {
+	type User struct {
+		Uid  int    `c:"uid"`
+		Name string `c:"name"`
+	}
+	// 对象
+	g.Dump(gconv.Map(User{
+		Uid:  1,
+		Name: "john",
+	}))
+	// 对象指针
+	g.Dump(gconv.Map(&User{
+		Uid:  1,
+		Name: "john",
+	}))
+
+	// 任意map类型
+	g.Dump(gconv.Map(map[int]int{
+		100: 10000,
+	}))
+
+}
+```
+
+```go
+{
+    "name": "john",
+    "uid": 1
+}
+
+{
+    "name": "john",
+    "uid": 1
+}
+
+{
+    "100": 10000
+}
+```
+
+也可以使用自定义标签。
+
+```go
+package main
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+)
+
+func main() {
+	type User struct {
+		Id   int    `c:"uid"`
+		Name string `my-tag:"nick-name" c:"name"`
+	}
+	user := &User{
+		Id:   1,
+		Name: "john",
+	}
+	g.Dump(gconv.Map(user, "my-tag"))
+}
+```
+
+结果为：
+
+```go
+{
+	"nick-name": "john",
+	"uid": 1
+}
+```
+
+**递归转换**
+		当参数为map/struct/*struct类型时，如果键值/属性为一个对象（或者对象指针）时，并且不是embedded结构体且没有任何的别名标签绑定，Map方法将会将对象转换为结果的一个键值。我们可以使用MapDeep方法递归转换参数的子对象，即把属性也转换为map类型。我们来看个例子。
+
+```
+package main
+
+import (
+	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+	"reflect"
+)
+
+func main() {
+	type Base struct {
+		Id   int    `c:"id"`
+		Date string `c:"date"`
+	}
+	type User struct {
+		UserBase Base   `c:"base"`
+		Passport string `c:"passport"`
+		Password string `c:"password"`
+		Nickname string `c:"nickname"`
+	}
+	user := &User{
+		UserBase: Base{
+			Id:   1,
+			Date: "2019-10-01",
+		},
+		Passport: "john",
+		Password: "123456",
+		Nickname: "JohnGuo",
+	}
+	m1 := gconv.Map(user)
+	m2 := gconv.MapDeep(user)
+	g.Dump(m1, m2)
+	fmt.Println(reflect.TypeOf(m1["base"]))
+	fmt.Println(reflect.TypeOf(m2["base"]))
+}
+```
+
+输出结果为
+
+```go
+{
+    "base": {
+            "Id": 1,
+            "Date": "2019-10-01"
+    },
+    "nickname": "JohnGuo",
+    "passport": "john",
+    "password": "123456"
+}
+{
+    "base": {
+            "date": "2019-10-01",
+            "id": 1
+    },
+    "nickname": "JohnGuo",
+    "passport": "john",
+    "password": "123456"
+}
+main.Base
+map[string]interface {}
+```
+
+gconv.Map深层解析为对象，但是gconv.MapDeep解析为map
+
+## 2、Struct转换
+
+​		项目中我们经常会遇到大量struct的使用，以及各种数据类型到struct的转换/赋值（特别是json/xml/各种协议编码转换）。为提高编码及项目维护效率，gconv模块为各位开发者带来了极大的福利，为数据解析提供了更高的灵活度。
+
+​		gconv模块通过Struct转换方法执行struct类型转换，其定义如下：
+
+```go
+// Struct maps the params key-value pairs to the corresponding struct object's attributes.
+// The third parameter `mapping` is unnecessary, indicating the mapping rules between the
+// custom key name and the attribute name(case sensitive).
+//
+// Note:
+// 1. The `params` can be any type of map/struct, usually a map.
+// 2. The `pointer` should be type of *struct/**struct, which is a pointer to struct object
+//    or struct pointer.
+// 3. Only the public attributes of struct object can be mapped.
+// 4. If `params` is a map, the key of the map `params` can be lowercase.
+//    It will automatically convert the first letter of the key to uppercase
+//    in mapping procedure to do the matching.
+//    It ignores the map key, if it does not match.
+func Struct(params interface{}, pointer interface{}, mapping ...map[string]string) (err error)
+```
+
+其中：
+
+1. params为需要转换到struct的变量参数，可以为任意数据类型，常见的数据类型为map。
+2. pointer为需要执行转的目标struct对象，这个参数必须为该struct的对象指针，转换成功后该对象的属性将会更新。
+3. mapping为自定义的map键名到strcut属性之间的映射关系，此时params参数必须为map类型，否则该参数无意义。大部分场景下使用可以不用提供该参数，直接使用默认的转换规则即可。
+
+### 2.1、转换规则
+
+​	gconv模块的struct转换特性非常强大，支持任意数据类型到struct属性的映射转换。在没有提供自定义mapping转换规则的情况下，默认的转换规则如下：
+
+1. struct中需要匹配的属性必须为 公开属性 (首字母大写)。
+2. 根据params类型的不同，逻辑会有不同：
+   - params参数类型为map：键名会自动按照 不区分大小写 且 忽略特殊字符 的形式与struct属性进行匹配。
+   - params参数为其他类型：将会把该变量值与struct的第一个属性进行匹配。
+   - 此外，如果struct的属性为复杂数据类型如slice,map,strcut那么会进行递归匹配赋值。
+3. 如果匹配成功，那么将键值赋值给属性，如果无法匹配，那么忽略该键值。
+   以下是几个map键名与struct属性名称的示例：
+
+### 2.2、自动创建对象
+
+​		当给定的pointer参数类型为**struct时，Struct方法内部将会自动创建该struct对象，并修改传递变量指向的指针地址。
+
+```go
+package main
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+)
+
+func main() {
+	type User struct {
+		Uid  int
+		Name string
+	}
+	params := g.Map{
+		"uid":  1,
+		"name": "john",
+	}
+	var user *User
+	if err := gconv.Struct(params, &user); err != nil {
+		panic(err)
+	}
+	g.Dump(user)
+}
+```
+
+### 2.3、Struct递归转换
+
+​		递归转换是指当struct对象包含子对象时，并且子对象是embedded方式定义时，可以将params参数数据（第一个参数）同时递归地映射到其子对象上，常用于带有继承对象的struct上。
+
+```go
+package main
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+)
+
+func main() {
+	type Ids struct {
+		Id         int    `json:"id"`
+		Uid        int    `json:"uid"`
+	}
+	type Base struct {
+		Ids
+		CreateTime string `json:"create_time"`
+	}
+	type User struct {
+		Base
+		Passport   string `json:"passport"`
+		Password   string `json:"password"`
+		Nickname   string `json:"nickname"`
+	}
+	data := g.Map{
+		"id"          : 1,
+		"uid"         : 100,
+		"passport"    : "john",
+		"password"    : "123456",
+		"nickname"    : "John",
+		"create_time" : "2019",
+	}
+	user := new(User)
+	gconv.Struct(data, user)
+	g.Dump(user)
+}
+```
+
+结果为
+
+```
+ 
+	"Base": {
+		"id": 1,
+		"uid": 100,
+		"create_time": "2019"
+	},
+	"nickname": "John",
+	"passport": "john",
+	"password": "123456"
+}
+```
+
+## 3、Structs转换
+
+​		我们之前提到可以使用Struct方法实现对struct对象的转换，那么我们当然也可以实现对struct数组的转换，struct数组转换使用的是Structs方法实现。Structs方法建立在Struct方法的基础之上，所有的转换规则与Struct相同，只是增加了对struct数组类型的支持。
+
+```go
+// Structs converts any slice to given struct slice.
+func Structs(params interface{}, pointer interface{}, mapping ...map[string]string) (err error)
+```
+
+其中pointer目标转换参数类型需要为*[]struct/*[]struct。
+
+```go
+package main
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+)
+
+func main() {
+	type User struct {
+		Uid  int
+		Name string
+	}
+	params := g.Slice{
+		g.Map{
+			"uid":  1,
+			"name": "john",
+		},
+		g.Map{
+			"uid":  2,
+			"name": "smith",
+		},
+	}
+	var users []*User
+	if err := gconv.Structs(params, &users); err != nil {
+		panic(err)
+	}
+	g.Dump(users)
+}
+```
+
+结果为：
+
+```
+[
+    {
+            "Uid": 1,
+            "Name": "john"
+    },
+    {
+            "Uid": 2,
+            "Name": "smith"
+    }
+]
+```
+
+## 4、Scan转换
+
+​		Scan转换方法，该方法可以实现对任意参数到struct/struct数组/map/map数组的转换，并且根据开发者输入的转换目标参数自动识别执行转换。
+
+### 4.1、自动识别转换Struct
+
+```go
+package main
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+)
+
+func main() {
+	type User struct {
+		Uid  int
+		Name string
+	}
+	params := g.Map{
+		"uid":  1,
+		"name": "john",
+	}
+	var user *User
+	if err := gconv.Scan(params, &user); err != nil {
+		panic(err)
+	}
+	g.Dump(user)
+}
+```
+
+结果为：
+
+```json
+{
+	"Name": "john",
+	"Uid": 1
+}
+```
+
+### 4.2、自动识别转换Struct数组
+
+```go
+package main
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+)
+
+func main() {
+	type User struct {
+		Uid  int
+		Name string
+	}
+	params := g.Slice{
+		g.Map{
+			"uid":  1,
+			"name": "john",
+		},
+		g.Map{
+			"uid":  2,
+			"name": "smith",
+		},
+	}
+	var users []*User
+	if err := gconv.Scan(params, &users); err != nil {
+		panic(err)
+	}
+	g.Dump(users)
+}
+```
+
+结果为
+
+```json
+[
+    {
+            "Uid": 1,
+            "Name": "john"
+    },
+    {
+            "Uid": 2,
+            "Name": "smith"
+    }
+]
+```
+
+### 4.3、自动识别转换Map
+
+```go
+package main
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+)
+
+func main() {
+	var (
+		user   map[string]string
+		params = g.Map{
+			"uid":  1,
+			"name": "john",
+		}
+	)
+	if err := gconv.Scan(params, &user); err != nil {
+		panic(err)
+	}
+	g.Dump(user)
+}
+```
+
+结果为：
+
+```json
+{
+   "Uid": "1", 
+   "Name": "john"
+}
+```
+
+### 4.4、自动识别转换Map数组
+
+```go
+package main
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
+)
+
+func main() {
+	var (
+		users  []map[string]string
+		params = g.Slice{
+			g.Map{
+				"uid":  1,
+				"name": "john",
+			},
+			g.Map{
+				"uid":  2,
+				"name": "smith",
+			},
+		}
+	)
+	if err := gconv.Scan(params, &users); err != nil {
+		panic(err)
+	}
+	g.Dump(users)
+}
+```
+
+结果为：
+
+```json
+[
+    {
+            "name": "john",
+            "uid": "1"
+    },
+    {
+            "name": "smith",
+            "uid": "2"
+    }
+]
+```
+
+## 5、UnmarshalValue转换
+
+​		gconv模块内部其实使用了反射的特性来实现的。这虽然为开发者提供了极大的便捷，但是这确实是以性能损耗为代价的。其实在对于struct转换时，如果开发者已经明确转换规则，并且对于其中的性能损耗比较在意，那么可以对特定的struct实现UnmarshalValue接口来实现自定义转换。当使用gconv模块对该struct进行转换时，无论该struct是直接作为转换对象或者作为转换对象的属性，gconv都将会自动识别其实现的UnmarshalValue接口并直接调用该接口实现类型转换，而不会使用反射特性来实现转换。
+
+```go
+// apiUnmarshalValue is the interface for custom defined types customizing value assignment.
+// Note that only pointer can implement interface apiUnmarshalValue.
+type apiUnmarshalValue interface {
+	UnmarshalValue(interface{}) error
+}
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
+	"reflect"
+)
+
+type User struct {
+	Id         int
+	Passport   string
+	Password   string
+	Nickname   string
+	CreateTime *gtime.Time
+}
+
+// 实现UnmarshalValue接口，用于自定义结构体转换
+func (user *User) UnmarshalValue(value interface{}) error {
+	if record, ok := value.(gdb.Record); ok {
+		*user = User{
+			Id:         record["id"].Int(),
+			Passport:   record["passport"].String(),
+			Password:   "",
+			Nickname:   record["nickname"].String(),
+			CreateTime: record["create_time"].GTime(),
+		}
+		return nil
+	}
+	return gerror.Newf(`unsupported value type for UnmarshalValue: %v`, reflect.TypeOf(value))
+}
+
+func main() {
+	var (
+		err   error
+		users []*User
+	)
+	array := garray.New(true)
+	for i := 1; i <= 10; i++ {
+		array.Append(g.Map{
+			"id":          i,
+			"passport":    fmt.Sprintf(`user_%d`, i),
+			"password":    fmt.Sprintf(`pass_%d`, i),
+			"nickname":    fmt.Sprintf(`name_%d`, i),
+			"create_time": gtime.NewFromStr("2018-10-24 10:00:00").String(),
+		})
+	}
+	// 写入数据
+	_, err = g.Model("user").Data(array).Insert()
+	if err != nil {
+		panic(err)
+	}
+	// 查询数据
+	err = g.Model("user").Order("id asc").Scan(&users)
+	if err != nil {
+		panic(err)
+	}
+	g.Dump(users)
+}
+```
+
+自定义tcp解包
+
+```
+
+
+package main
+
+import (
+	"errors"
+	"fmt"
+	"github.com/gogf/gf/v2/crypto/gcrc32"
+	"github.com/gogf/gf/v2/encoding/gbinary"
+	"github.com/gogf/gf/v2/util/gconv"
+)
+
+type Pkg struct {
+	Length uint16 // Total length.
+	Crc32  uint32 // CRC32.
+	Data   []byte
+}
+
+// NewPkg creates and returns a package with given data.
+func NewPkg(data []byte) *Pkg {
+	return &Pkg{
+		Length: uint16(len(data) + 6),
+		Crc32:  gcrc32.Encrypt(data),
+		Data:   data,
+	}
+}
+
+// Marshal encodes the protocol struct to bytes.
+func (p *Pkg) Marshal() []byte {
+	b := make([]byte, 6+len(p.Data))
+	copy(b, gbinary.EncodeUint16(p.Length))
+	copy(b[2:], gbinary.EncodeUint32(p.Crc32))
+	copy(b[6:], p.Data)
+	return b
+}
+
+// UnmarshalValue decodes bytes to protocol struct.
+func (p *Pkg) UnmarshalValue(v interface{}) error {
+	b := gconv.Bytes(v)
+	if len(b) < 6 {
+		return errors.New("invalid package length")
+	}
+	p.Length = gbinary.DecodeToUint16(b[:2])
+	if len(b) < int(p.Length) {
+		return errors.New("invalid data length")
+	}
+	p.Crc32 = gbinary.DecodeToUint32(b[2:6])
+	p.Data = b[6:]
+	if gcrc32.Encrypt(p.Data) != p.Crc32 {
+		return errors.New("crc32 validation failed")
+	}
+	return nil
+}
+
+func main() {
+	var p1, p2 *Pkg
+
+	// Create a demo pkg as p1.
+	p1 = NewPkg([]byte("123"))
+	fmt.Println(p1)
+	
+	// Convert bytes from p1 to p2 using gconv.Struct.
+	err := gconv.Struct(p1.Marshal(), &p2)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(p2)
+
+}
+```
+

@@ -48,7 +48,11 @@ func InsertUserUsingGDB(ctx context.Context, user *do.User) error {
 	if user == nil {
 		return gerror.NewCode(errors.WrongParameterError, "insert user is null.")
 	}
-	_, err := UserModel.Insert(user)
+	result, err := UserModel.Insert(user)
+	if err != nil {
+		return gerror.NewCode(errors.SQLError, "insert user failed, error: "+err.Error())
+	}
+	_, err = result.LastInsertId()
 	if err != nil {
 		return gerror.NewCode(errors.SQLError, "insert user failed, error: "+err.Error())
 	}
@@ -59,7 +63,7 @@ func UpdateUserUsingGDB(ctx context.Context, user *do.User) error {
 	if user == nil {
 		return gerror.NewCode(errors.WrongParameterError, "update user is null.")
 	}
-	_, err := UserModel.Update(user)
+	_, err := UserModel.Data(user).Where("id=?", user.Id).Update()
 	if err != nil {
 		return gerror.NewCode(errors.SQLError, "update user failed, error: "+err.Error())
 	}

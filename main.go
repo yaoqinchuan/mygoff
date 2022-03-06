@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf-tracing/tracing"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
@@ -34,14 +35,30 @@ func initServer(ctx context.Context) {
 	controller.RegisterUserController(ctx, s)
 	s.Run()
 }
+// 配置jaeger
+var (
+	ServiceName       = "tracing-inprocess"
+	JaegerUdpEndpoint = "localhost:6831"
+)
+
 
 func main() {
 	appCtx := gctx.New()
-	err := printEnv()
+	tp, err := tracing.InitJaeger(ServiceName, JaegerUdpEndpoint)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		utils.PrintLog(appCtx, utils.ERROR, err.Error())
+		return
+	}
+	defer tp.Shutdown(appCtx)
+
+	err = printEnv()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
+
 	cmd.MainCommand.Run(appCtx)
 	utils.PrintLog(appCtx, utils.INFO, "app using "+cmd.LoggerMode+" level mode.")
 	utils.PrintLog(appCtx, utils.INFO, "start application mygogf.")

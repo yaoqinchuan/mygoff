@@ -441,7 +441,7 @@ func main() {
 			Amount:      10000,
 		}
 	)
-	err := g.Validator().RuleFunc("order-exist", RuleOrderExist).Data(req).Run(ctx)  
+	err := g.Validator().Rules("order-exist").RuleFunc("order-exist", RuleOrderExist).Data(req).Run(ctx)  
 	fmt.Println(err)
 }
 ```

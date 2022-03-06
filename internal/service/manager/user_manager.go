@@ -46,7 +46,6 @@ func UpdateUserUsingGDB(ctx context.Context, input *entity.User) error {
 		Password: input.Password,
 		Passport: input.Passport,
 		Nickname: input.Nickname,
-		CreateAt: input.CreateAt,
 		UpdateAt: gtime.Now(),
 	}
 	return dao.UpdateUserUsingGDB(ctx, &userDo)

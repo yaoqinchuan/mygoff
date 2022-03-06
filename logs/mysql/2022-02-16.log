@@ -1,0 +1,90 @@
+2022-02-16 21:30:47.264 [DEBU] {6ca546b85d47d4165e2cba08067f92f4} [  3 ms] [default] [rows:6  ] SHOW FULL COLUMNS FROM `user` 
+2022-02-16 21:30:47.268 [DEBU] {6ca546b85d47d4165e2cba08067f92f4} [  2 ms] [default] [rows:0  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 21:30:48.423 [DEBU] {6ca546b85d47d4165e2cba08067f92f4} [  4 ms] [default] [rows:1  ] INSERT INTO `user`(`password`,`nickname`,`create_at`,`update_at`,`id`,`passport`) VALUES('1234567891','yqc1','2022-02-16 21:30:48','2022-02-16 21:30:48',6,'yaoqinchuan')  
+2022-02-16 21:31:21.282 [DEBU] {6ca546b85d47d4165e2cba08067f92f4} [  3 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 21:32:20.351 [DEBU] {100715b66d47d4163e63fd6907b4286c} [  3 ms] [default] [rows:6  ] SHOW FULL COLUMNS FROM `user` 
+2022-02-16 21:32:20.353 [DEBU] {100715b66d47d4163e63fd6907b4286c} [  1 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 21:39:51.611 [DEBU] {34d1e9cddd47d416e03dd244492ff9eb} [  2 ms] [default] [rows:6  ] SHOW FULL COLUMNS FROM `user` 
+2022-02-16 21:39:51.613 [DEBU] {34d1e9cddd47d416e03dd244492ff9eb} [  1 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 21:39:51.613 [ERRO] {34d1e9cddd47d416e03dd244492ff9eb} [  0 ms] [default] [rows:0  ] UPDATE `user` SET id=?,update_at='2022-02-16 21:39:51' WHERE 6
+Error: Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '?,update_at='2022-02-16 21:39:51' WHERE 6' at line 1 
+Stack:
+1.  github.com/gogf/gf/v2/database/gdb.(*Core).writeSqlToLogger
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/database/gdb/gdb_core.go:655
+2.  github.com/gogf/gf/v2/database/gdb.(*Core).DoCommit
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/database/gdb/gdb_core_underlying.go:238
+3.  github.com/gogf/gf/v2/database/gdb.(*Core).DoExec
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/database/gdb/gdb_core_underlying.go:109
+4.  github.com/gogf/gf/v2/database/gdb.(*Core).DoUpdate
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/database/gdb/gdb_core.go:601
+5.  github.com/gogf/gf/v2/database/gdb.(*Model).Update
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/database/gdb/gdb_model_update.go:77
+6.  github.com/gogf/gf/v2/database/gdb.(*Model).Update
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/database/gdb/gdb_model_update.go:32
+7.  mygogf/internal/service/internal/dao.UpdateUserUsingGDB
+    G:/go/mygogf/internal/service/internal/dao/user.go:66
+8.  mygogf/internal/service/manager.UpdateUserUsingGDB
+    G:/go/mygogf/internal/service/manager/user_manager.go:52
+9.  mygogf/internal/controller.(*UserController).Post
+    G:/go/mygogf/internal/controller/user.go:81
+10. github.com/gogf/gf/v2/net/ghttp.(*middleware).callHandlerFunc.func1
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_request_middleware.go:130
+11. github.com/gogf/gf/v2/net/ghttp.niceCallFunc
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_func.go:56
+12. github.com/gogf/gf/v2/net/ghttp.(*middleware).callHandlerFunc
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_request_middleware.go:128
+13. github.com/gogf/gf/v2/net/ghttp.(*middleware).Next.func1
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_request_middleware.go:74
+14. github.com/gogf/gf/v2/util/gutil.TryCatch
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/util/gutil/gutil.go:55
+15. github.com/gogf/gf/v2/net/ghttp.(*middleware).Next
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_request_middleware.go:48
+16. mygogf/internal/service/middleware.ResponseHandler
+    G:/go/mygogf/internal/service/middleware/restmiddleware.go:17
+17. github.com/gogf/gf/v2/net/ghttp.(*middleware).Next.func1.5
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_request_middleware.go:95
+18. github.com/gogf/gf/v2/net/ghttp.niceCallFunc
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_func.go:56
+19. github.com/gogf/gf/v2/net/ghttp.(*middleware).Next.func1
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_request_middleware.go:94
+20. github.com/gogf/gf/v2/util/gutil.TryCatch
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/util/gutil/gutil.go:55
+21. github.com/gogf/gf/v2/net/ghttp.(*middleware).Next
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_request_middleware.go:48
+22. github.com/gogf/gf/v2/net/ghttp.internalMiddlewareServerTracing
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_middleware_tracing.go:78
+23. github.com/gogf/gf/v2/net/ghttp.(*middleware).Next.func1.5
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_request_middleware.go:95
+24. github.com/gogf/gf/v2/net/ghttp.niceCallFunc
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_func.go:56
+25. github.com/gogf/gf/v2/net/ghttp.(*middleware).Next.func1
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_request_middleware.go:94
+26. github.com/gogf/gf/v2/util/gutil.TryCatch
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/util/gutil/gutil.go:55
+27. github.com/gogf/gf/v2/net/ghttp.(*middleware).Next
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_request_middleware.go:48
+28. github.com/gogf/gf/v2/net/ghttp.(*Server).ServeHTTP
+    C:/Users/yqc/workspace/go/pkg/mod/github.com/gogf/gf/v2@v2.0.0-rc2/net/ghttp/ghttp_server_handler.go:121
+ 
+2022-02-16 21:42:10.432 [DEBU] {88036c49ff47d41674cc8330e224b962} [  2 ms] [default] [rows:6  ] SHOW FULL COLUMNS FROM `user` 
+2022-02-16 21:42:10.435 [DEBU] {88036c49ff47d41674cc8330e224b962} [  2 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 21:42:10.438 [DEBU] {88036c49ff47d41674cc8330e224b962} [  2 ms] [default] [rows:1  ] UPDATE `user` SET `create_at`='2022-02-03 23:33:12',`id`=6,`update_at`='2022-02-16 21:42:10',`passport`='yaoqinchuan',`password`='1234567891',`nickname`='yqc2' WHERE id=6 
+2022-02-16 21:43:39.486 [DEBU] {b06565ad1248d41687e13731f3292c47} [  1 ms] [default] [rows:6  ] SHOW FULL COLUMNS FROM `user` 
+2022-02-16 21:43:39.488 [DEBU] {b06565ad1248d41687e13731f3292c47} [  1 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 21:43:39.491 [DEBU] {b06565ad1248d41687e13731f3292c47} [  2 ms] [default] [rows:1  ] UPDATE `user` SET `update_at`='2022-02-16 21:43:39',`passport`='yaoqinchuan',`password`='1234567891',`nickname`='yqc2',`id`=6 WHERE id=6 
+2022-02-16 21:44:07.919 [DEBU] {b06565ad1248d41687e13731f3292c47} [  1 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 21:44:07.921 [DEBU] {b06565ad1248d41687e13731f3292c47} [  2 ms] [default] [rows:1  ] UPDATE `user` SET `nickname`='yqc3',`id`=6,`update_at`='2022-02-16 21:44:07',`passport`='yaoqinchuan',`password`='1234567891' WHERE id=6 
+2022-02-16 22:18:25.372 [DEBU] {88aacda3ef49d416e7645912d5adbefe} [  2 ms] [default] [rows:6  ] SHOW FULL COLUMNS FROM `user` 
+2022-02-16 22:18:25.373 [DEBU] {88aacda3ef49d416e7645912d5adbefe} [  0 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 22:26:23.676 [DEBU] {88aacda3ef49d416e7645912d5adbefe} [  9 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 22:30:38.138 [DEBU] {34af2b94a44ad416a0b25e18a07c0165} [  3 ms] [default] [rows:6  ] SHOW FULL COLUMNS FROM `user` 
+2022-02-16 22:30:38.139 [DEBU] {34af2b94a44ad416a0b25e18a07c0165} [  1 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 23:00:21.345 [DEBU] {207b018e434cd416b35451205df93433} [  2 ms] [default] [rows:6  ] SHOW FULL COLUMNS FROM `user` 
+2022-02-16 23:00:21.347 [DEBU] {207b018e434cd416b35451205df93433} [  0 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 23:13:18.330 [DEBU] {2c555d18f44cd416e782ba69ca22ef62} [  4 ms] [default] [rows:6  ] SHOW FULL COLUMNS FROM `user` 
+2022-02-16 23:13:18.332 [DEBU] {2c555d18f44cd416e782ba69ca22ef62} [  1 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+2022-02-16 23:13:39.524 [DEBU] {9c429d1dfc4cd416caa6252edb00bab2} [  2 ms] [default] [rows:6  ] SHOW FULL COLUMNS FROM `user` 
+2022-02-16 23:13:39.525 [DEBU] {9c429d1dfc4cd416caa6252edb00bab2} [  1 ms] [default] [rows:1  ] SELECT * FROM `user` WHERE id= 6 LIMIT 1 
+ssh-copy-id -i .ssh/id_rsa.pub k8s-slave1@192.168.1.116
+ssh-copy-id -i .ssh/id_rsa.pub k8s-slave2@192.168.1.117
+ssh-copy-id -i .ssh/id_rsa.pub k8s-master@192.168.1.118
